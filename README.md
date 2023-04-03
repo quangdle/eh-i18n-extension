@@ -34,6 +34,9 @@ The extension can be configured with the following settings:
 - `createLocaleKey.localeFilePath`: The file path to the JSON locale file (default: `locales/en.json`)
 - `createLocaleKey.withBrackets`: Whether to format the replacement reference with brackets (default: `false`)
 
+<img width="953" alt="Screenshot 2023-04-04 at 00 24 32" src="https://user-images.githubusercontent.com/92286197/229587437-58d0bedf-7e39-4fe4-8e6b-2207b5adff53.png">
+
+
 ## Known Issues
 
 - None at the moment.
