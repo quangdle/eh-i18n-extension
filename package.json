@@ -1,6 +1,7 @@
 {
   "name": "eh-i18n-extension",
   "displayName": "EH i18n",
+  "publisher": "quangdle",
   "description": "Extension facilitating the creation of locale keys",
   "version": "0.0.1",
   "engines": {
