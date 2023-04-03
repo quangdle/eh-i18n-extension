@@ -14,7 +14,7 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 1. Select the text you want to create a key for
 2. Open the command palette (`Ctrl + Shift + P` or `Cmd + Shift + P`)
 3. Search for `Create Locale Key` and select it
-4. Enter a unique key for the selected text when prompted
+4. Enter a unique key for the selected text when prompted. For nested keys, separate the keys with `--` (e.g. `parent--child--grandchild`).
 5. The selected text will be replaced with a reference to the new key
 
 ## Configuration

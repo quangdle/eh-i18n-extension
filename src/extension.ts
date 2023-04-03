@@ -104,7 +104,7 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         await vscode.workspace.fs.writeFile(
           filePath,
-          Buffer.from(JSON.stringify(json, null, 2))
+          Buffer.from(JSON.stringify(json, null, 2) + "\n")
         );
       } catch {
         vscode.window.showErrorMessage("Failed to write locale file");

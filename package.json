@@ -3,7 +3,12 @@
   "displayName": "EH i18n",
   "publisher": "quangdle",
   "description": "Extension facilitating the creation of locale keys",
-  "version": "0.0.1",
+  "icon": "images/logo.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quangdle/eh-i18n-extension.git"
+  },
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.77.0"
   },
