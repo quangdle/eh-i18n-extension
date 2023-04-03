@@ -6,7 +6,7 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 
 - Creates a new key in a JSON locale file
 - Replaces selected text with a reference to that key
-- Supports custom locale file paths and
+- Supports custom locale file path
 
 ## Usage
 
@@ -22,8 +22,7 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 
 ![ezgif com-video-to-gif (2)](https://user-images.githubusercontent.com/92286197/229586730-36ef2175-5ddf-4ba7-b872-0167960a3978.gif)
 
-
-7. If your key exists, it throw error!  
+7. If your key exists, it throw error!
 
 ![ezgif com-video-to-gif](https://user-images.githubusercontent.com/92286197/229585058-407f1926-2e9e-40b4-b37b-804882aaa467.gif)
 
@@ -35,7 +34,6 @@ The extension can be configured with the following settings:
 - `createLocaleKey.withBrackets`: Whether to format the replacement reference with brackets (default: `false`)
 
 <img width="853" alt="image" src="https://user-images.githubusercontent.com/92286197/229587670-463c6c5f-c9ad-490e-adee-d88759a02059.png">
-
 
 ## Known Issues
 
