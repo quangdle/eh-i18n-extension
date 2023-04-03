@@ -1,11 +1,44 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+type NestedObject = Record<string, any>;
+
+const SEPARATOR = "--";
+
+function assignValueToObjectPath<T extends NestedObject>(
+  obj: T,
+  paths: string[],
+  value: string,
+  duplicatedCallBack: () => void
+): boolean {
+  let currentObj: NestedObject = obj;
+
+  for (let i = 0; i < paths.length - 1; i++) {
+    const key = paths[i];
+    if (!currentObj.hasOwnProperty(key)) {
+      currentObj[key] = {};
+    }
+    currentObj = currentObj[key] as NestedObject;
+  }
+  const lastKey = paths[paths.length - 1];
+
+  if (currentObj.hasOwnProperty(lastKey)) {
+    duplicatedCallBack();
+    return false;
+  } else {
+    currentObj[lastKey] = value;
+    return true;
+  }
+}
+
 export function activate(context: vscode.ExtensionContext) {
-  let disposable = vscode.commands.registerCommand(
+  const userConfiguration = vscode.workspace.getConfiguration();
+  const localePath = userConfiguration.get<string>(
+    "createLocaleKey.localeFilePath"
+  );
+  const useBrackets = userConfiguration.get<boolean>(
+    "createLocaleKey.withBrackets"
+  );
+  const disposable = vscode.commands.registerCommand(
     "createLocaleKey",
     async () => {
       const editor = vscode.window.activeTextEditor;
@@ -17,10 +50,17 @@ export function activate(context: vscode.ExtensionContext) {
       const selection = editor.selection;
       const selectedText = editor.document.getText(selection);
 
+      if (!selectedText || (selectedText || "").trim().length === 0) {
+        vscode.window.showInformationMessage("No text selected");
+        return;
+      }
+
       const key = await vscode.window.showInputBox({
         prompt: "Enter the locale text key",
       });
-      if (!key) {
+
+      if (!key || (key || "").trim().length === 0) {
+        vscode.window.showInformationMessage("Key must not be empty");
         return;
       }
 
@@ -29,25 +69,53 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showErrorMessage("No workspace folder opened");
         return;
       }
-      const filePath = vscode.Uri.joinPath(
-        workspaceFolders[0].uri,
-        "src/packages/eh-locale/lang/en-AU.json"
-      );
 
-      const data = await vscode.workspace.fs.readFile(filePath);
+      if (!localePath) {
+        vscode.window.showErrorMessage("Please set localeFilePath in settings");
+        return;
+      }
+
+      const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, localePath);
+
+      let data = {};
+      try {
+        data = await vscode.workspace.fs.readFile(filePath);
+      } catch {
+        vscode.window.showErrorMessage("Locale file not found");
+      }
+
       const json = JSON.parse(data.toString());
-      json.messages[key] = selectedText.replace(/^["'](.*)["']$/, "$1");
+      const paths = key.split(SEPARATOR);
 
-      await vscode.workspace.fs.writeFile(
-        filePath,
-        Buffer.from(JSON.stringify(json, null, 2))
+      const assignedSuccess = assignValueToObjectPath(
+        json.messages,
+        paths,
+        selectedText.replace(/^["'](.*)["']$/, "$1"),
+        () => {
+          vscode.window.showErrorMessage("Key already exists");
+          return;
+        }
       );
+
+      if (!assignedSuccess) {
+        return;
+      }
+
+      try {
+        await vscode.workspace.fs.writeFile(
+          filePath,
+          Buffer.from(JSON.stringify(json, null, 2))
+        );
+      } catch {
+        vscode.window.showErrorMessage("Failed to write locale file");
+      }
+
+      const replacementIntlExpression = useBrackets
+        ? `\{Intl.formatMessage({id: '${paths.join(".")}'})\}`
+        : `Intl.formatMessage({id: '${paths.join(".")}'})`;
 
       editor.edit((editBuilder) => {
-        editBuilder.replace(
-          selection,
-          `\{Intl.formatMessage({id: '${key}'})\}`
-        );
+        editBuilder.replace(selection, replacementIntlExpression);
       });
     }
   );
@@ -55,5 +123,4 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

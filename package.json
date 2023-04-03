@@ -1,7 +1,7 @@
 {
-  "name": "helloworld",
-  "displayName": "HelloWorld",
-  "description": "",
+  "name": "eh-i18n-extension",
+  "displayName": "EH i18n",
+  "description": "Extension facilitating the creation of locale keys",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"
@@ -12,10 +12,25 @@
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "EH i18n",
+      "properties": {
+        "createLocaleKey.localeFilePath": {
+          "type": "string",
+          "default": "src/packages/eh-locale/lang/en-AU.json",
+          "description": "Path to locale file"
+        },
+        "createLocaleKey.withBrackets": {
+          "type": "boolean",
+          "default": true,
+          "description": "Wrap replacements with brackets"
+        }
+      }
+    },
     "commands": [
       {
         "command": "createLocaleKey",
-        "title": "Create Locale Key"
+        "title": "EH i18n - Create Locale Key"
       }
     ]
   },
