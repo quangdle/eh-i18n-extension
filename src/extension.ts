@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
     async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
-        vscode.window.showErrorMessage("No active text editor");
+        vscode.window.showErrorMessage("No active text editor!");
         return;
       }
 
@@ -51,7 +51,7 @@ export function activate(context: vscode.ExtensionContext) {
       const selectedText = editor.document.getText(selection);
 
       if (!selectedText || (selectedText || "").trim().length === 0) {
-        vscode.window.showInformationMessage("No text selected");
+        vscode.window.showInformationMessage("No text selected!");
         return;
       }
 
@@ -60,18 +60,20 @@ export function activate(context: vscode.ExtensionContext) {
       });
 
       if (!key || (key || "").trim().length === 0) {
-        vscode.window.showInformationMessage("Key must not be empty");
+        vscode.window.showInformationMessage("Key must not be empty!");
         return;
       }
 
       const workspaceFolders = vscode.workspace.workspaceFolders;
       if (!workspaceFolders || workspaceFolders.length === 0) {
-        vscode.window.showErrorMessage("No workspace folder opened");
+        vscode.window.showErrorMessage("No workspace folder opened!");
         return;
       }
 
       if (!localePath) {
-        vscode.window.showErrorMessage("Please set localeFilePath in settings");
+        vscode.window.showErrorMessage(
+          "Please set locale file path in settings!"
+        );
         return;
       }
 
@@ -81,18 +83,21 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         data = await vscode.workspace.fs.readFile(filePath);
       } catch {
-        vscode.window.showErrorMessage("Locale file not found");
+        vscode.window.showErrorMessage("Locale file not found!");
       }
 
       const json = JSON.parse(data.toString());
       const paths = key.split(SEPARATOR);
+      const formattedPath = paths.join(".");
 
       const assignedSuccess = assignValueToObjectPath(
         json.messages,
         paths,
         selectedText.replace(/^["'](.*)["']$/, "$1"),
         () => {
-          vscode.window.showErrorMessage("Key already exists");
+          vscode.window.showErrorMessage(
+            "Key already exists! Please use another key."
+          );
           return;
         }
       );
@@ -107,12 +112,12 @@ export function activate(context: vscode.ExtensionContext) {
           Buffer.from(JSON.stringify(json, null, 2) + "\n")
         );
       } catch {
-        vscode.window.showErrorMessage("Failed to write locale file");
+        vscode.window.showErrorMessage("Failed to write locale file!");
       }
 
       const replacementIntlExpression = useBrackets
-        ? `\{Intl.formatMessage({id: '${paths.join(".")}'})\}`
-        : `Intl.formatMessage({id: '${paths.join(".")}'})`;
+        ? `\{Intl.formatMessage({id: '${formattedPath}'})\}`
+        : `Intl.formatMessage({id: '${formattedPath}'})`;
 
       editor.edit((editBuilder) => {
         editBuilder.replace(selection, replacementIntlExpression);
