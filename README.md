@@ -1,4 +1,4 @@
-# VS Code Create Locale Key
+# EH i18n - VS Code Create Locale Key
 
 A VS Code extension for creating a new key in a JSON locale file and replacing selected text with a reference to that key.
 
@@ -12,19 +12,21 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 
 1. Select the text you want to create a key for
 2. Open the command palette (`Ctrl + Shift + P` or `Cmd + Shift + P`)
-3. Search for `Create Locale Key` and select it
+3. Search for `EH i18n - Create Locale Key` and select it
 4. Enter a unique key for the selected text when prompted
 5. The selected text will be replaced with a reference to the new key
 
-![ezgif com-video-to-gif (1)](https://user-images.githubusercontent.com/92286197/229586068-558807f8-de69-4b10-bd75-30ca5b3486d7.gif)
+![edit](https://user-images.githubusercontent.com/92286197/229753494-544aa4eb-c807-4386-9cdb-7d562daaa9d7.gif)
 
 6. For nested keys, separate the keys with `--` (e.g. `parent--child--grandchild`)
 
-![ezgif com-video-to-gif (2)](https://user-images.githubusercontent.com/92286197/229586730-36ef2175-5ddf-4ba7-b872-0167960a3978.gif)
+![nested](https://user-images.githubusercontent.com/92286197/229753517-c2eec429-9cd9-400b-aefb-1ca39bf9487b.gif)
+
 
 7. If your key exists, it throw error!
 
-![ezgif com-video-to-gif](https://user-images.githubusercontent.com/92286197/229585058-407f1926-2e9e-40b4-b37b-804882aaa467.gif)
+![ok](https://user-images.githubusercontent.com/92286197/229753537-d30555d4-3d4b-4ba0-bff1-98512234d1c0.gif)
+
 
 ## Configuration
 
