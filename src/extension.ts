@@ -1,51 +1,51 @@
 import * as vscode from "vscode";
 
-type NestedObject = Record<string, any>;
+import {
+  checkValueAndExistingKeys,
+  assignValueToObjectPath,
+  replaceSelectedText,
+  getExtensionConfig,
+} from "./utils";
+import { SEPARATOR, CREATE_LOCALE_KEY_COMMAND } from "./constants";
 
-const SEPARATOR = "--";
-
-function assignValueToObjectPath<T extends NestedObject>(
-  obj: T,
-  paths: string[],
-  value: string,
-  duplicatedCallBack: () => void
-): boolean {
-  let currentObj: NestedObject = obj;
-
-  for (let i = 0; i < paths.length - 1; i++) {
-    const key = paths[i];
-    if (!currentObj.hasOwnProperty(key)) {
-      currentObj[key] = {};
+function getEditorByFileName(fileName: string): vscode.TextEditor | undefined {
+  const visibleEditors = vscode.window.visibleTextEditors;
+  for (const editor of visibleEditors) {
+    if (editor.document.fileName === fileName) {
+      return editor;
     }
-    currentObj = currentObj[key] as NestedObject;
   }
-  const lastKey = paths[paths.length - 1];
-
-  if (currentObj.hasOwnProperty(lastKey)) {
-    duplicatedCallBack();
-    return false;
-  } else {
-    currentObj[lastKey] = value;
-    return true;
-  }
+  return undefined;
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  const userConfiguration = vscode.workspace.getConfiguration();
-  const localePath = userConfiguration.get<string>(
-    "createLocaleKey.localeFilePath"
-  );
-  const useBrackets = userConfiguration.get<boolean>(
-    "createLocaleKey.withBrackets"
-  );
+  const localePath = getExtensionConfig("localeFilePath") as string;
+  const useBrackets = getExtensionConfig("withBrackets") as boolean;
+
+  /* Check localePath config */
+  if (!localePath) {
+    vscode.window.showErrorMessage("Please set locale file path in settings!");
+    return;
+  }
+
+  const workspaceFolders = vscode.workspace.workspaceFolders;
+  if (!workspaceFolders || workspaceFolders.length === 0) {
+    vscode.window.showErrorMessage("No workspace folder opened!");
+    return;
+  }
+
+  const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, localePath);
+
   const disposable = vscode.commands.registerCommand(
-    "createLocaleKey",
+    CREATE_LOCALE_KEY_COMMAND,
     async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
         vscode.window.showErrorMessage("No active text editor!");
         return;
       }
+
+      /* Check selected text */
 
       const selection = editor.selection;
       const selectedText = editor.document.getText(selection);
@@ -55,7 +55,58 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
+      let data = {};
+      try {
+        data = await vscode.workspace.fs.readFile(filePath);
+      } catch {
+        vscode.window.showErrorMessage("Locale file not found!");
+      }
+      const localeJSON = JSON.parse(data.toString());
+
+      const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
+
+      const { valueExists, existingKeys } = checkValueAndExistingKeys(
+        localeJSON.messages,
+        trimedQuotedText
+      );
+
+      if (valueExists) {
+        const quickPickItems = existingKeys.map((key) => ({
+          label: key,
+        }));
+
+        const createNewOption = {
+          label: "Create new key...",
+          detail: "Create a new key if exsiting keys are not suitable",
+          alwaysShow: true,
+        };
+
+        const separator = {
+          label: "Please try using the existing keys below if possible",
+          kind: vscode.QuickPickItemKind.Separator,
+        };
+
+        const userSelect = await vscode.window.showQuickPick(
+          [createNewOption, separator, ...quickPickItems],
+          {
+            ignoreFocusOut: true,
+            title: "Please review the existing keys",
+            placeHolder: "Please choose an existing key or create a new key...",
+          }
+        );
+
+        if (!userSelect) {
+          return;
+        }
+
+        if (userSelect && existingKeys.includes(userSelect.label)) {
+          replaceSelectedText(selection, userSelect.label, useBrackets);
+          return;
+        }
+      }
+
       const key = await vscode.window.showInputBox({
+        ignoreFocusOut: true,
         prompt: "Enter the locale text key",
       });
 
@@ -64,36 +115,12 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
-      const workspaceFolders = vscode.workspace.workspaceFolders;
-      if (!workspaceFolders || workspaceFolders.length === 0) {
-        vscode.window.showErrorMessage("No workspace folder opened!");
-        return;
-      }
-
-      if (!localePath) {
-        vscode.window.showErrorMessage(
-          "Please set locale file path in settings!"
-        );
-        return;
-      }
-
-      const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, localePath);
-
-      let data = {};
-      try {
-        data = await vscode.workspace.fs.readFile(filePath);
-      } catch {
-        vscode.window.showErrorMessage("Locale file not found!");
-      }
-
-      const json = JSON.parse(data.toString());
       const paths = key.split(SEPARATOR);
-      const formattedPath = paths.join(".");
 
       const assignedSuccess = assignValueToObjectPath(
-        json.messages,
+        localeJSON.messages,
         paths,
-        selectedText.replace(/^["'](.*)["']$/, "$1"),
+        trimedQuotedText,
         () => {
           vscode.window.showErrorMessage(
             "Key already exists! Please use another key."
@@ -109,19 +136,13 @@ export function activate(context: vscode.ExtensionContext) {
       try {
         await vscode.workspace.fs.writeFile(
           filePath,
-          Buffer.from(JSON.stringify(json, null, 2) + "\n")
+          Buffer.from(JSON.stringify(localeJSON, null, 2) + "\n")
         );
       } catch {
         vscode.window.showErrorMessage("Failed to write locale file!");
       }
 
-      const replacementIntlExpression = useBrackets
-        ? `\{Intl.formatMessage({id: '${formattedPath}'})\}`
-        : `Intl.formatMessage({id: '${formattedPath}'})`;
-
-      editor.edit((editBuilder) => {
-        editBuilder.replace(selection, replacementIntlExpression);
-      });
+      replaceSelectedText(selection, key, useBrackets);
     }
   );
 
