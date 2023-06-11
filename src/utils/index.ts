@@ -88,3 +88,54 @@ export const replaceSelectedText = async (
   await vscode.workspace.applyEdit(edit);
   await textDocument.save();
 };
+// Function to sort localeObject.messages with below criteria:
+// 1. Sort the keys alphabetically.
+// 2. Sort the keys with dots after keys without dots.
+export function sortJson(jsonObj: NestedObject) {
+  const sortedKeys = Object.keys(jsonObj)
+    .sort((a, b) => {
+      // compare keys alphabetically
+      if (a < b) {
+        return -1;
+      } else if (a > b) {
+        return 1;
+      } else {
+        return 0;
+      }
+    })
+    .sort((a, b) => {
+      // sort keys with dots after keys without dots
+      const aHasDot = a.indexOf(".") !== -1;
+      const bHasDot = b.indexOf(".") !== -1;
+      if (aHasDot && !bHasDot) {
+        return 1;
+      } else if (!aHasDot && bHasDot) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+  // .sort((a, b) => {
+  //   // sort keys whose values are objects after those whose values are strings
+  //   const aValueIsObject =
+  //     typeof jsonObj[a] === 'object' && jsonObj[a] !== null;
+  //   const bValueIsObject =
+  //     typeof jsonObj[b] === 'object' && jsonObj[b] !== null;
+  //   if (aValueIsObject && !bValueIsObject) {
+  //     return 1;
+  //   } else if (!aValueIsObject && bValueIsObject) {
+  //     return -1;
+  //   } else {
+  //     return 0;
+  //   }
+  // });
+  const sortedJsonObj: NestedObject = {};
+  sortedKeys.forEach((key) => {
+    if (typeof jsonObj[key] === "object" && jsonObj[key] !== null) {
+      sortedJsonObj[key] = sortJson(jsonObj[key]);
+    } else {
+      sortedJsonObj[key] = jsonObj[key];
+    }
+  });
+  return sortedJsonObj;
+}

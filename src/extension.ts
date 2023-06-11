@@ -5,12 +5,14 @@ import {
   assignValueToObjectPath,
   replaceSelectedText,
   getExtensionConfig,
+  sortJson,
 } from "./utils";
 import { SEPARATOR, CREATE_LOCALE_KEY_COMMAND } from "./constants";
 
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
   const useBrackets = getExtensionConfig("withBrackets") as boolean;
+  const useSort = getExtensionConfig("sort") as boolean;
 
   /* Check localePath config */
   if (!localePath) {
@@ -127,6 +129,10 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (!assignedSuccess) {
         return;
+      }
+
+      if (useSort) {
+        localeJSON.messages = sortJson(localeJSON.messages);
       }
 
       try {

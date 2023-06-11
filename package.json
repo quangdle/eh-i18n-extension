@@ -30,6 +30,11 @@
           "type": "boolean",
           "default": true,
           "description": "Wrap replacements with brackets"
+        },
+        "createLocaleKey.sort": {
+          "type": "boolean",
+          "default": false,
+          "description": "Sort the keys in alphabetical order (The keys with dots will come after keys without dots.)"
         }
       }
     },
