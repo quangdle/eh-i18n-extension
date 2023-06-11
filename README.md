@@ -7,6 +7,8 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 - Creates a new key in a JSON locale file
 - Replaces selected text with a reference to that key
 - Supports custom locale file path
+- Suggest existing keys whose value is the selected text
+- Sort the json file
 
 ## Usage
 
@@ -27,25 +29,36 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 
 ![ok](https://user-images.githubusercontent.com/92286197/229753537-d30555d4-3d4b-4ba0-bff1-98512234d1c0.gif)
 
+8. If the the text exists, suggest existing keys whose value is the selected text
+![ezgif com-video-to-gif (1)](https://github.com/quangdle/eh-i18n-extension/assets/92286197/582413b0-f165-481a-958c-54987e038fbf)
+
 
 ## Configuration
 
 The extension can be configured with the following settings:
 
-- `createLocaleKey.localeFilePath`: The file path to the JSON locale file (default: `locales/en.json`)
+- `createLocaleKey.localeFilePath`: The file path to the JSON locale file (default: `src/packages/eh-locale/lang/en-AU.json`)
 - `createLocaleKey.withBrackets`: Whether to format the replacement reference with brackets (default: `false`)
+- `createLocaleKey.sort`: Whether to sort the keys in alphabetical order (The keys with dots will come after keys without dots.) (default: `false`)
 
-<img width="853" alt="image" src="https://user-images.githubusercontent.com/92286197/229587670-463c6c5f-c9ad-490e-adee-d88759a02059.png">
+<img width="1249" alt="image" src="https://github.com/quangdle/eh-i18n-extension/assets/92286197/dbb2040f-569e-44d4-84d0-acb597380378">
 
+#### If `createLocaleKey.sort` is checked:
+
+![ezgif com-video-to-gif](https://github.com/quangdle/eh-i18n-extension/assets/92286197/a5aefba0-86e1-4608-b916-533c561d6531)
 ## Known Issues
 
 - None at the moment.
 
 ## Release Notes
 
-### 1.0.0
+### 0.0.6
 
 Initial release of Create Locale Key
+
+### 0.0.7
+
+Add sort and suggestion of existing keys
 
 ## Contributing
 
