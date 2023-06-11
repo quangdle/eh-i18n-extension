@@ -118,13 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
       const assignedSuccess = assignValueToObjectPath(
         localeJSON.messages,
         paths,
-        trimedQuotedText,
-        () => {
-          vscode.window.showErrorMessage(
-            "Key already exists! Please use another key."
-          );
-          return;
-        }
+        trimedQuotedText
       );
 
       if (!assignedSuccess) {

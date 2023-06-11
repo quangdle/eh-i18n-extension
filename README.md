@@ -24,14 +24,12 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 
 ![nested](https://user-images.githubusercontent.com/92286197/229753517-c2eec429-9cd9-400b-aefb-1ca39bf9487b.gif)
 
-
 7. If your key exists, it throw error!
 
 ![ok](https://user-images.githubusercontent.com/92286197/229753537-d30555d4-3d4b-4ba0-bff1-98512234d1c0.gif)
 
 8. If the the text exists, suggest existing keys whose value is the selected text
-![ezgif com-video-to-gif (1)](https://github.com/quangdle/eh-i18n-extension/assets/92286197/582413b0-f165-481a-958c-54987e038fbf)
-
+   ![ezgif com-video-to-gif (1)](https://github.com/quangdle/eh-i18n-extension/assets/92286197/582413b0-f165-481a-958c-54987e038fbf)
 
 ## Configuration
 
@@ -46,6 +44,7 @@ The extension can be configured with the following settings:
 #### If `createLocaleKey.sort` is checked:
 
 ![ezgif com-video-to-gif](https://github.com/quangdle/eh-i18n-extension/assets/92286197/a5aefba0-86e1-4608-b916-533c561d6531)
+
 ## Known Issues
 
 - None at the moment.
@@ -56,7 +55,7 @@ The extension can be configured with the following settings:
 
 Initial release of Create Locale Key
 
-### 0.0.7
+### 0.0.8
 
 Add sort and suggestion of existing keys
 

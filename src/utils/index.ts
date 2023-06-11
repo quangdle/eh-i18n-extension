@@ -7,8 +7,7 @@ type NestedObject = Record<string, any>;
 export function assignValueToObjectPath<T extends NestedObject>(
   obj: T,
   paths: string[],
-  value: string,
-  duplicatedCallBack: () => void
+  value: string
 ): boolean {
   let currentObj: NestedObject = obj;
 
@@ -17,12 +16,23 @@ export function assignValueToObjectPath<T extends NestedObject>(
     if (!currentObj.hasOwnProperty(key)) {
       currentObj[key] = {};
     }
+
+    if (currentObj.hasOwnProperty(key) && typeof currentObj[key] === "string") {
+      vscode.window.showErrorMessage(
+        `Path ${paths.slice(0, i + 1).join(".")} is a string: ${
+          currentObj[key]
+        }`
+      );
+      return false;
+    }
     currentObj = currentObj[key] as NestedObject;
   }
   const lastKey = paths[paths.length - 1];
 
   if (currentObj.hasOwnProperty(lastKey)) {
-    duplicatedCallBack();
+    vscode.window.showErrorMessage(
+      "Key already exists! Please use another key."
+    );
     return false;
   } else {
     currentObj[lastKey] = value;
