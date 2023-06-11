@@ -67,17 +67,15 @@ export const getExtensionConfig = (configKey: string): unknown => {
   );
 };
 
-export const replaceSelectedText = (
+export const replaceSelectedText = async (
   selection: vscode.Selection,
   key: string,
-  useBrackets: boolean
+  useBrackets: boolean,
+  filePath: string
 ) => {
-  const editor = vscode.window.activeTextEditor;
+  const textDocument = await vscode.workspace.openTextDocument(filePath);
 
-  if (!editor) {
-    vscode.window.showErrorMessage("No active text editor!");
-    return;
-  }
+  const edit = new vscode.WorkspaceEdit();
 
   const paths = key.split(SEPARATOR);
   const formattedPath = paths.join(".");
@@ -86,7 +84,7 @@ export const replaceSelectedText = (
     ? `\{Intl.formatMessage({id: '${formattedPath}'})\}`
     : `Intl.formatMessage({id: '${formattedPath}'})`;
 
-  editor.edit((editBuilder) => {
-    editBuilder.replace(selection, replacementIntlExpression);
-  });
+  edit.replace(textDocument.uri, selection, replacementIntlExpression);
+  await vscode.workspace.applyEdit(edit);
+  await textDocument.save();
 };

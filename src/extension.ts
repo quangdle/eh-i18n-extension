@@ -8,16 +8,6 @@ import {
 } from "./utils";
 import { SEPARATOR, CREATE_LOCALE_KEY_COMMAND } from "./constants";
 
-function getEditorByFileName(fileName: string): vscode.TextEditor | undefined {
-  const visibleEditors = vscode.window.visibleTextEditors;
-  for (const editor of visibleEditors) {
-    if (editor.document.fileName === fileName) {
-      return editor;
-    }
-  }
-  return undefined;
-}
-
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
   const useBrackets = getExtensionConfig("withBrackets") as boolean;
@@ -45,6 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
         return;
       }
 
+      const fileName = editor.document.fileName;
       /* Check selected text */
 
       const selection = editor.selection;
@@ -100,7 +91,12 @@ export function activate(context: vscode.ExtensionContext) {
         }
 
         if (userSelect && existingKeys.includes(userSelect.label)) {
-          replaceSelectedText(selection, userSelect.label, useBrackets);
+          await replaceSelectedText(
+            selection,
+            userSelect.label,
+            useBrackets,
+            fileName
+          );
           return;
         }
       }
@@ -142,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showErrorMessage("Failed to write locale file!");
       }
 
-      replaceSelectedText(selection, key, useBrackets);
+      await replaceSelectedText(selection, key, useBrackets, fileName);
     }
   );
 
