@@ -37,7 +37,12 @@ The extension can be configured with the following settings:
 
 - `createLocaleKey.localeFilePath`: The file path to the JSON locale file (default: `src/packages/eh-locale/lang/en-AU.json`)
 - `createLocaleKey.withBrackets`: Whether to format the replacement reference with brackets (default: `false`)
-- `createLocaleKey.sort`: Whether to sort the keys in alphabetical order (The keys with dots will come after keys without dots.) (default: `false`)
+- `createLocaleKey.sort`: Whether to sort the keys in alphabetical order (default: `false`). 
+
+> **_NOTE:_** Sorting criteria:
+> 1. Sort the keys alphabetically.
+> 2. Sort the keys with dots after keys without dots.
+> 3. Sort keys whose values are objects after those whose values are strings
 
 <img width="1249" alt="image" src="https://github.com/quangdle/eh-i18n-extension/assets/92286197/dbb2040f-569e-44d4-84d0-acb597380378">
 
@@ -55,7 +60,7 @@ The extension can be configured with the following settings:
 
 Initial release of Create Locale Key
 
-### 0.0.8
+### 0.0.9
 
 Add sort and suggestion of existing keys
 
