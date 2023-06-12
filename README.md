@@ -48,7 +48,7 @@ The extension can be configured with the following settings:
 
 #### If `createLocaleKey.sort` is checked:
 
-![ezgif com-video-to-gif](https://github.com/quangdle/eh-i18n-extension/assets/92286197/a5aefba0-86e1-4608-b916-533c561d6531)
+![ezgif com-video-to-gif (2)](https://github.com/quangdle/eh-i18n-extension/assets/92286197/8144338e-f0c7-4093-b181-bd4dfc4c35b0)
 
 ## Known Issues
 
