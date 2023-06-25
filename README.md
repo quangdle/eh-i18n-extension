@@ -64,6 +64,10 @@ Initial release of Create Locale Key
 
 Add sort and suggestion of existing keys
 
+### 0.0.9
+
+Make default sort config
+
 ## Contributing
 
 Pull requests and bug reports are welcome on [GitHub](https://github.com/YOUR_USERNAME/YOUR_REPO_NAME).

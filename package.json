@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/quangdle/eh-i18n-extension.git"
   },
-  "version": "0.0.9",
+  "version": "0.0.10",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -33,7 +33,7 @@
         },
         "createLocaleKey.sort": {
           "type": "boolean",
-          "default": false,
+          "default": true,
           "description": "Sort the keys in alphabetical order (The keys with dots will come after keys without dots.)"
         }
       }
