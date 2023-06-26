@@ -64,9 +64,13 @@ Initial release of Create Locale Key
 
 Add sort and suggestion of existing keys
 
-### 0.0.9
+### 0.0.10
 
-Make default sort config
+Make default sort config true
+
+### 0.0.11
+
+Make default sort config false
 
 ## Contributing
 
