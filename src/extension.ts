@@ -7,7 +7,11 @@ import {
   getExtensionConfig,
   sortJson,
 } from "./utils";
-import { SEPARATOR, CREATE_LOCALE_KEY_COMMAND } from "./constants";
+import {
+  SEPARATOR,
+  CREATE_LOCALE_KEY_COMMAND,
+  EDIT_LOCALE_KEY_NAME_COMMAND,
+} from "./constants";
 
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
@@ -141,8 +145,15 @@ export function activate(context: vscode.ExtensionContext) {
       await replaceSelectedText(selection, key, useBrackets, fileName);
     }
   );
+  const disposable1 = vscode.commands.registerCommand(
+    EDIT_LOCALE_KEY_NAME_COMMAND,
+    () => {
+      console.log("Init stuff for new command");
+    }
+  );
 
   context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable1);
 }
 
 export function deactivate() {}

@@ -42,6 +42,10 @@
       {
         "command": "createLocaleKey",
         "title": "EH i18n - Create Locale Key"
+      },
+      {
+        "command": "editLocalKeyName",
+        "title": "EH i18n - Edit Locale Key's name"
       }
     ]
   },
