@@ -6,8 +6,14 @@ import {
   replaceSelectedText,
   getExtensionConfig,
   sortJson,
+  findKey,
+  overwriteNewValue,
 } from "./utils";
-import { SEPARATOR, CREATE_LOCALE_KEY_COMMAND } from "./constants";
+import {
+  SEPARATOR,
+  CREATE_LOCALE_KEY_COMMAND,
+  EDIT_LOCALE_KEY_NAME_COMMAND,
+} from "./constants";
 
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
@@ -141,8 +147,69 @@ export function activate(context: vscode.ExtensionContext) {
       await replaceSelectedText(selection, key, useBrackets, fileName);
     }
   );
+  const disposable1 = vscode.commands.registerCommand(
+    EDIT_LOCALE_KEY_NAME_COMMAND,
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active text editor!");
+        return;
+      }
+
+      const fileName = editor.document.fileName;
+      /* Check selected text */
+
+      const selection = editor.selection;
+      const selectedText = editor.document.getText(selection);
+
+      if (!selectedText || (selectedText || "").trim().length === 0) {
+        vscode.window.showInformationMessage("No text selected!");
+        return;
+      }
+
+      let data = {};
+      try {
+        data = await vscode.workspace.fs.readFile(filePath);
+      } catch {
+        vscode.window.showErrorMessage("Locale file not found!");
+      }
+      const localeJSON = JSON.parse(data.toString());
+
+      const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
+
+      const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
+
+      const newValue = await vscode.window.showInputBox({
+        ignoreFocusOut: true,
+        value: valueToFind,
+        prompt: "Replace the locale text key",
+      });
+
+      if (!newValue || (newValue || "").trim().length === 0) {
+        vscode.window.showInformationMessage("New value must not be empty!");
+        return;
+      }
+
+      try {
+        const newDataForLocaleFile = overwriteNewValue(
+          localeJSON.messages,
+          trimedQuotedText,
+          newValue
+        );
+        localeJSON.messages = newDataForLocaleFile;
+        const modifiedContent = Buffer.from(
+          JSON.stringify(localeJSON, null, 2)
+        );
+
+        vscode.workspace.fs.writeFile(filePath, modifiedContent);
+      } catch (error: any) {
+        vscode.window.showErrorMessage("Error:", error.message);
+      }
+    }
+  );
 
   context.subscriptions.push(disposable);
+  context.subscriptions.push(disposable1);
 }
 
 export function deactivate() {}
