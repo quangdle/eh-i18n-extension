@@ -7,6 +7,7 @@ import {
   getExtensionConfig,
   sortJson,
   findKey,
+  overwriteNewValue,
 } from "./utils";
 import {
   SEPARATOR,
@@ -178,12 +179,32 @@ export function activate(context: vscode.ExtensionContext) {
 
       const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
 
-      console.log(valueToFind);
-      const key = await vscode.window.showInputBox({
+      const newValue = await vscode.window.showInputBox({
         ignoreFocusOut: true,
         value: valueToFind,
         prompt: "Replace the locale text key",
       });
+
+      if (!newValue || (newValue || "").trim().length === 0) {
+        vscode.window.showInformationMessage("New value must not be empty!");
+        return;
+      }
+
+      try {
+        const newDataForLocaleFile = overwriteNewValue(
+          localeJSON.messages,
+          trimedQuotedText,
+          newValue
+        );
+        localeJSON.messages = newDataForLocaleFile;
+        const modifiedContent = Buffer.from(
+          JSON.stringify(localeJSON, null, 2)
+        );
+
+        vscode.workspace.fs.writeFile(filePath, modifiedContent);
+      } catch (error: any) {
+        vscode.window.showErrorMessage("Error:", error.message);
+      }
     }
   );
 

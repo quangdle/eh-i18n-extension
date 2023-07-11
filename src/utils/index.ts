@@ -168,3 +168,29 @@ export function sortJson(jsonObj: NestedObject) {
   });
   return sortedJsonObj;
 }
+
+export function overwriteNewValue(nestedObject: any, key: any, newValue: any) {
+  if (nestedObject[key]) {
+    nestedObject[key] = newValue;
+    return nestedObject;
+  } else {
+    const keys = key.split(".");
+    const updatedObject = { ...nestedObject };
+
+    let currentObject = updatedObject;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const currentKey = keys[i];
+      if (currentKey in currentObject) {
+        currentObject[currentKey] = { ...currentObject[currentKey] };
+        currentObject = currentObject[currentKey];
+      } else {
+        throw new Error(`Key "${currentKey}" not found.`);
+      }
+    }
+
+    const lastKey = keys[keys.length - 1];
+    currentObject[lastKey] = newValue;
+
+    return updatedObject;
+  }
+}
