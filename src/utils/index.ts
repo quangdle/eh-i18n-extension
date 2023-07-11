@@ -70,6 +70,24 @@ export function checkValueAndExistingKeys(
   return { valueExists, existingKeys };
 }
 
+export function findKey(nestedObje: any, keyToDelete: any) {
+  if (nestedObje[keyToDelete]) {
+    return nestedObje[keyToDelete];
+  } else {
+    let nestedKeys = keyToDelete.split("."); // split the key by dots to handle nested properties
+    let temp = nestedObje;
+    for (let i = 0; i < nestedKeys.length - 1; i++) {
+      // traverse the nested properties
+      temp = temp[nestedKeys[i]];
+      if (!temp) {
+        return null;
+      } // if any property is not found, return the original object
+    }
+    let lastKey = nestedKeys[nestedKeys.length - 1];
+    return temp[lastKey];
+  }
+}
+
 export const getExtensionConfig = (configKey: string): unknown => {
   const userConfiguration = vscode.workspace.getConfiguration();
   return userConfiguration.get<string>(

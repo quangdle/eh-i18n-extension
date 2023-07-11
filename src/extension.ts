@@ -6,6 +6,7 @@ import {
   replaceSelectedText,
   getExtensionConfig,
   sortJson,
+  findKey,
 } from "./utils";
 import {
   SEPARATOR,
@@ -147,8 +148,42 @@ export function activate(context: vscode.ExtensionContext) {
   );
   const disposable1 = vscode.commands.registerCommand(
     EDIT_LOCALE_KEY_NAME_COMMAND,
-    () => {
-      console.log("Init stuff for new command");
+    async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active text editor!");
+        return;
+      }
+
+      const fileName = editor.document.fileName;
+      /* Check selected text */
+
+      const selection = editor.selection;
+      const selectedText = editor.document.getText(selection);
+
+      if (!selectedText || (selectedText || "").trim().length === 0) {
+        vscode.window.showInformationMessage("No text selected!");
+        return;
+      }
+
+      let data = {};
+      try {
+        data = await vscode.workspace.fs.readFile(filePath);
+      } catch {
+        vscode.window.showErrorMessage("Locale file not found!");
+      }
+      const localeJSON = JSON.parse(data.toString());
+
+      const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
+
+      const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
+
+      console.log(valueToFind);
+      const key = await vscode.window.showInputBox({
+        ignoreFocusOut: true,
+        value: valueToFind,
+        prompt: "Replace the locale text key",
+      });
     }
   );
 
