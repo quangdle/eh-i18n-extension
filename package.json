@@ -45,7 +45,7 @@
       },
       {
         "command": "editLocalKeyName",
-        "title": "EH i18n - Edit Locale Key's name"
+        "title": "EH i18n - Edit Locale Key's message"
       }
     ]
   },
