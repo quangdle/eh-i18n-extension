@@ -1,19 +1,12 @@
 import * as vscode from "vscode";
 
+import { getExtensionConfig } from "./utils";
 import {
-  checkValueAndExistingKeys,
-  assignValueToObjectPath,
-  replaceSelectedText,
-  getExtensionConfig,
-  sortJson,
-  findKey,
-  overwriteNewValue,
-} from "./utils";
-import {
-  SEPARATOR,
   CREATE_LOCALE_KEY_COMMAND,
   EDIT_LOCALE_KEY_NAME_COMMAND,
 } from "./constants";
+import newLocaleKey from "./disposables/newLocaleKey";
+import editLocaleKeyMassage from "./disposables/editLocaleKeyMessage";
 
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
@@ -34,182 +27,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, localePath);
 
-  const disposable = vscode.commands.registerCommand(
-    CREATE_LOCALE_KEY_COMMAND,
-    async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active text editor!");
-        return;
-      }
+  const disposables = vscode.Disposable.from(
+    vscode.commands.registerCommand(CREATE_LOCALE_KEY_COMMAND, async () => {
+      newLocaleKey(filePath, useBrackets, useSort);
+    }),
 
-      const fileName = editor.document.fileName;
-      /* Check selected text */
-
-      const selection = editor.selection;
-      const selectedText = editor.document.getText(selection);
-
-      if (!selectedText || (selectedText || "").trim().length === 0) {
-        vscode.window.showInformationMessage("No text selected!");
-        return;
-      }
-
-      let data = {};
-      try {
-        data = await vscode.workspace.fs.readFile(filePath);
-      } catch {
-        vscode.window.showErrorMessage("Locale file not found!");
-      }
-      const localeJSON = JSON.parse(data.toString());
-
-      const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
-
-      const { valueExists, existingKeys } = checkValueAndExistingKeys(
-        localeJSON.messages,
-        trimedQuotedText
-      );
-
-      if (valueExists) {
-        const quickPickItems = existingKeys.map((key) => ({
-          label: key,
-        }));
-
-        const createNewOption = {
-          label: "Create new key...",
-          detail: "Create a new key if exsiting keys are not suitable",
-          alwaysShow: true,
-        };
-
-        const separator = {
-          label: "Please try using the existing keys below if possible",
-          kind: vscode.QuickPickItemKind.Separator,
-        };
-
-        const userSelect = await vscode.window.showQuickPick(
-          [createNewOption, separator, ...quickPickItems],
-          {
-            ignoreFocusOut: true,
-            title: "Please review the existing keys",
-            placeHolder: "Please choose an existing key or create a new key...",
-          }
-        );
-
-        if (!userSelect) {
-          return;
-        }
-
-        if (userSelect && existingKeys.includes(userSelect.label)) {
-          await replaceSelectedText(
-            selection,
-            userSelect.label,
-            useBrackets,
-            fileName
-          );
-          return;
-        }
-      }
-
-      const key = await vscode.window.showInputBox({
-        ignoreFocusOut: true,
-        prompt: "Enter the locale text key",
-      });
-
-      if (!key || (key || "").trim().length === 0) {
-        vscode.window.showInformationMessage("Key must not be empty!");
-        return;
-      }
-
-      const paths = key.split(SEPARATOR);
-
-      const assignedSuccess = assignValueToObjectPath(
-        localeJSON.messages,
-        paths,
-        trimedQuotedText
-      );
-
-      if (!assignedSuccess) {
-        return;
-      }
-
-      if (useSort) {
-        localeJSON.messages = sortJson(localeJSON.messages);
-      }
-
-      try {
-        await vscode.workspace.fs.writeFile(
-          filePath,
-          Buffer.from(JSON.stringify(localeJSON, null, 2) + "\n")
-        );
-      } catch {
-        vscode.window.showErrorMessage("Failed to write locale file!");
-      }
-
-      await replaceSelectedText(selection, key, useBrackets, fileName);
-    }
-  );
-  const disposable1 = vscode.commands.registerCommand(
-    EDIT_LOCALE_KEY_NAME_COMMAND,
-    async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active text editor!");
-        return;
-      }
-
-      const fileName = editor.document.fileName;
-      /* Check selected text */
-
-      const selection = editor.selection;
-      const selectedText = editor.document.getText(selection);
-
-      if (!selectedText || (selectedText || "").trim().length === 0) {
-        vscode.window.showInformationMessage("No text selected!");
-        return;
-      }
-
-      let data = {};
-      try {
-        data = await vscode.workspace.fs.readFile(filePath);
-      } catch {
-        vscode.window.showErrorMessage("Locale file not found!");
-      }
-      const localeJSON = JSON.parse(data.toString());
-
-      const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
-
-      const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
-
-      const newValue = await vscode.window.showInputBox({
-        ignoreFocusOut: true,
-        value: valueToFind,
-        prompt: "Replace the locale text key",
-      });
-
-      if (!newValue || (newValue || "").trim().length === 0) {
-        vscode.window.showInformationMessage("New value must not be empty!");
-        return;
-      }
-
-      try {
-        const newDataForLocaleFile = overwriteNewValue(
-          localeJSON.messages,
-          trimedQuotedText,
-          newValue
-        );
-        localeJSON.messages = newDataForLocaleFile;
-        const modifiedContent = Buffer.from(
-          JSON.stringify(localeJSON, null, 2)
-        );
-
-        vscode.workspace.fs.writeFile(filePath, modifiedContent);
-      } catch (error: any) {
-        vscode.window.showErrorMessage("Error:", error.message);
-      }
-    }
+    vscode.commands.registerCommand(EDIT_LOCALE_KEY_NAME_COMMAND, async () => {
+      editLocaleKeyMassage(filePath);
+    })
   );
 
-  context.subscriptions.push(disposable);
-  context.subscriptions.push(disposable1);
+  context.subscriptions.push(disposables);
 }
 
 export function deactivate() {}
