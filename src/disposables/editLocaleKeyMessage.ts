@@ -8,7 +8,6 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
     return;
   }
 
-  const fileName = editor.document.fileName;
   /* Check selected text */
 
   const selection = editor.selection;
@@ -31,10 +30,15 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
 
   const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
 
+  if (!valueToFind || typeof valueToFind !== "string") {
+    vscode.window.showErrorMessage("key is invalid or not exists");
+    return;
+  }
+
   const newValue = await vscode.window.showInputBox({
     ignoreFocusOut: true,
     value: valueToFind,
-    prompt: "Replace the locale text key",
+    prompt: `New value for the key ${trimedQuotedText}`,
   });
 
   if (!newValue || (newValue || "").trim().length === 0) {
