@@ -70,6 +70,24 @@ export function checkValueAndExistingKeys(
   return { valueExists, existingKeys };
 }
 
+export function findKey(nestedObje: any, keyToDelete: any) {
+  if (nestedObje[keyToDelete]) {
+    return nestedObje[keyToDelete];
+  } else {
+    let nestedKeys = keyToDelete.split("."); // split the key by dots to handle nested properties
+    let temp = nestedObje;
+    for (let i = 0; i < nestedKeys.length - 1; i++) {
+      // traverse the nested properties
+      temp = temp[nestedKeys[i]];
+      if (!temp) {
+        return null;
+      } // if any property is not found, return the original object
+    }
+    let lastKey = nestedKeys[nestedKeys.length - 1];
+    return temp[lastKey];
+  }
+}
+
 export const getExtensionConfig = (configKey: string): unknown => {
   const userConfiguration = vscode.workspace.getConfiguration();
   return userConfiguration.get<string>(
@@ -149,4 +167,30 @@ export function sortJson(jsonObj: NestedObject) {
     }
   });
   return sortedJsonObj;
+}
+
+export function overwriteNewValue(nestedObject: any, key: any, newValue: any) {
+  if (nestedObject[key]) {
+    nestedObject[key] = newValue;
+    return nestedObject;
+  } else {
+    const keys = key.split(".");
+    const updatedObject = { ...nestedObject };
+
+    let currentObject = updatedObject;
+    for (let i = 0; i < keys.length - 1; i++) {
+      const currentKey = keys[i];
+      if (currentKey in currentObject) {
+        currentObject[currentKey] = { ...currentObject[currentKey] };
+        currentObject = currentObject[currentKey];
+      } else {
+        throw new Error(`Key "${currentKey}" not found.`);
+      }
+    }
+
+    const lastKey = keys[keys.length - 1];
+    currentObject[lastKey] = newValue;
+
+    return updatedObject;
+  }
 }
