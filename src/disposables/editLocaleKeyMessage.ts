@@ -31,7 +31,7 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
   const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
 
   if (!valueToFind || typeof valueToFind !== "string") {
-    vscode.window.showErrorMessage("key is invalid or not exists");
+    vscode.window.showErrorMessage("Key is invalid or not exists");
     return;
   }
 
