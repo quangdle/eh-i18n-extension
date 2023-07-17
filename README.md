@@ -11,7 +11,7 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 - Sort the json file
 
 ## Usage
-
+### For creating new locale key
 1. Select the text you want to create a key for
 2. Open the command palette (`Ctrl + Shift + P` or `Cmd + Shift + P`)
 3. Search for `EH i18n - Create Locale Key` and select it
@@ -29,7 +29,20 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 ![ok](https://user-images.githubusercontent.com/92286197/229753537-d30555d4-3d4b-4ba0-bff1-98512234d1c0.gif)
 
 8. If the the text exists, suggest existing keys whose value is the selected text
-   ![ezgif com-video-to-gif (1)](https://github.com/quangdle/eh-i18n-extension/assets/92286197/582413b0-f165-481a-958c-54987e038fbf)
+<img src="https://github.com/quangdle/eh-i18n-extension/assets/92286197/582413b0-f165-481a-958c-54987e038fbf" />
+
+### For editing message of an existing key.
+1. Select the key you want to edit its message
+2. Open the command palette (`Ctrl + Shift + P` or `Cmd + Shift + P`)
+3. Search for `EH i18n - Edit Locale Message` and select it
+4. The extension will check the key you select(if it hasn't existed yet, it'll show error) and show the current message of the key
+<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/131105fb-cefb-460f-a795-2c9556422c9d" alt="invalid_key"/>
+
+5. Enter a new message for the valid key you selected
+<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/a3f6e15c-59f2-4659-b370-8b381d04946f" alt="happy_case"/>
+
+6. If you enter an empty message, it'll show error
+<img width='581' src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/863112fc-7f08-426e-b470-f2b430252567" alt="empty_text"/>
 
 ## Configuration
 
