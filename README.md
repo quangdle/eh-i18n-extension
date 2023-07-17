@@ -36,13 +36,13 @@ A VS Code extension for creating a new key in a JSON locale file and replacing s
 2. Open the command palette (`Ctrl + Shift + P` or `Cmd + Shift + P`)
 3. Search for `EH i18n - Edit Locale Message` and select it
 4. The extension will check the key you select(if it hasn't existed yet, it'll show error) and show the current message of the key
-<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/b11f6596-ff71-4b63-9992-511f316e7d0c" alt="invalid_key"/>
+<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/131105fb-cefb-460f-a795-2c9556422c9d" alt="invalid_key"/>
 
 5. Enter a new message for the valid key you selected
-<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/59e681db-2ebf-493a-b238-f573919e726c" alt="happy_case"/>
+<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/a3f6e15c-59f2-4659-b370-8b381d04946f" alt="happy_case"/>
 
 6. If you enter an empty message, it'll show error
-<img src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/65a9632e-4d5e-4894-9a54-74646a680b69" alt="empty_text"/>
+<img width='581' src="https://github.com/quangdle/eh-i18n-extension/assets/116699596/863112fc-7f08-426e-b470-f2b430252567" alt="empty_text"/>
 
 ## Configuration
 
