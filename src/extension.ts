@@ -3,7 +3,7 @@ import * as vscode from "vscode";
 import { getExtensionConfig } from "./utils";
 import {
   CREATE_LOCALE_KEY_COMMAND,
-  EDIT_LOCALE_KEY_NAME_COMMAND,
+  EDIT_LOCALE_MESSAGE_COMMAND,
 } from "./constants";
 import newLocaleKey from "./disposables/newLocaleKey";
 import editLocaleKeyMassage from "./disposables/editLocaleKeyMessage";
@@ -32,7 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
       newLocaleKey(filePath, useBrackets, useSort);
     }),
 
-    vscode.commands.registerCommand(EDIT_LOCALE_KEY_NAME_COMMAND, async () => {
+    vscode.commands.registerCommand(EDIT_LOCALE_MESSAGE_COMMAND, async () => {
       editLocaleKeyMassage(filePath);
     })
   );
