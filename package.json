@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/quangdle/eh-i18n-extension.git"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -28,7 +28,7 @@
       "properties": {
         "createLocaleKey.localeFilePath": {
           "type": "string",
-          "default": "src/packages/eh-locale/lang/en-AU.json",
+          "default": "apps/hr-web-app/src/packages/eh-locale/lang/en-AU.json",
           "description": "Path to locale file"
         },
         "createLocaleKey.withBrackets": {
