@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 
 import { CREATE_LOCALE_KEY_COMMAND, SEPARATOR } from "../constants";
-import findMostSimilarKey from "./findMostSimilarKey";
+import findTheMostSuitablePosition from "./findTheMostSuitablePosition";
 import {
   showKeyExistsErrorMessage,
   showPathIsAStringErrorMessage,
@@ -10,7 +10,7 @@ import {
 type NestedObject = Record<string, any>;
 type MessageObject = Record<string, string | NestedObject>;
 
-const addKeyNextToItsMostSimilar = <T extends NestedObject>({
+const addKeyNextToTheMostSuitablePosition = <T extends NestedObject>({
   jsonObj,
   key,
   value,
@@ -51,25 +51,25 @@ const handleAddStringKey = ({
   value: string;
   messagesObject: MessageObject;
 }): MessageObject | null => {
-  const theMostSimilarKeyToNewKey = findMostSimilarKey({
+  const theMostSuitablePosition = findTheMostSuitablePosition({
     inputKey: newKey,
     keySet: Object.keys(messagesObject).filter(
       (key) => typeof messagesObject[key] !== "object"
     ),
   });
 
-  if (!theMostSimilarKeyToNewKey) {
+  if (!theMostSuitablePosition) {
     return {
       ...messagesObject,
       [newKey]: value,
     };
   }
 
-  return addKeyNextToItsMostSimilar({
+  return addKeyNextToTheMostSuitablePosition({
     jsonObj: messagesObject,
     key: newKey,
     value,
-    nextToKey: theMostSimilarKeyToNewKey,
+    nextToKey: theMostSuitablePosition,
   });
 };
 
