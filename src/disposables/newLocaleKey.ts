@@ -95,21 +95,19 @@ const newLocaleKey = async (
       return;
     }
 
-    const paths = key.split(SEPARATOR);
+    const newMessagesObject = assignValueToObjectPath({
+      obj: localeJSON.messages,
+      key,
+      value: trimedQuotedText,
+    });
 
-    const assignedSuccess = assignValueToObjectPath(
-      localeJSON.messages,
-      paths,
-      trimedQuotedText
-    );
-
-    if (!assignedSuccess) {
+    if (!newMessagesObject) {
       return;
     }
 
-    if (useSort) {
-      localeJSON.messages = sortJson(localeJSON.messages);
-    }
+    localeJSON.messages = useSort
+      ? sortJson(newMessagesObject)
+      : newMessagesObject;
 
     try {
       await vscode.workspace.fs.writeFile(
