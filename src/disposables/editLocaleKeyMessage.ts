@@ -57,7 +57,8 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
       JSON.stringify(localeJSON, null, 2) + "\n"
     );
 
-    vscode.workspace.fs.writeFile(filePath, modifiedContent);
+    await vscode.workspace.fs.writeFile(filePath, modifiedContent);
+    vscode.window.showInformationMessage("Edit key successfully!");
   } catch (error: any) {
     vscode.window.showErrorMessage("Error:", error.message);
   }
