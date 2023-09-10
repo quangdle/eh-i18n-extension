@@ -4,13 +4,14 @@ import {
   replaceSelectedText,
   sortJson,
 } from "../utils";
-import { getTextInfoByCursor } from "../utils/getTextInfo";
+import { getTextInfoByCursor, getTextInfoByRange } from "../utils/getTextInfo";
 import {
   failToWriteFileError,
   localeFileNotFoundError,
   noEditorError,
   noTextSelectedError,
 } from "../utils/errors";
+import { GetTextBy } from "../constants";
 
 const createNewKeyAction = async (
   filePath: vscode.Uri,
@@ -27,16 +28,18 @@ const createNewKeyAction = async (
     const fileName = editor.document.fileName;
 
     const cursorPosition = editor.selection.active;
+    const range = editor.selection;
 
-    const selectedTextData = getTextInfoByCursor(
-      editor.document,
-      cursorPosition
-    );
+    const selectedTextData =
+      getTextInfoByRange(editor.document, range) ||
+      getTextInfoByCursor(editor.document, cursorPosition);
 
     if (!selectedTextData) {
       noTextSelectedError();
       return;
     }
+
+    const isTextByRange = selectedTextData?.by === GetTextBy.range;
 
     const {
       textInQuotes,
@@ -94,7 +97,10 @@ const createNewKeyAction = async (
     }
 
     await replaceSelectedText(
-      new vscode.Range(textStartPosition, textEndPosition.translate(0, 1)),
+      new vscode.Range(
+        textStartPosition,
+        isTextByRange ? textEndPosition : textEndPosition.translate(0, 1)
+      ),
       key,
       useBrackets,
       fileName

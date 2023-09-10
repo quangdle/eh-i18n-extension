@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { GetTextBy } from "../constants";
 
 function getTextInfoByCursor(
   document: vscode.TextDocument,
@@ -26,7 +27,7 @@ function getTextInfoByCursor(
 
   if (start && end) {
     const textInQuotes = lineText.substring(start.character + 1, end.character);
-    return { textInQuotes, start, end };
+    return { textInQuotes, start, end, by: GetTextBy.cursor };
   }
 
   return null;
@@ -42,6 +43,7 @@ const getTextInfoByRange = (
       textInQuotes: text,
       start: range.start,
       end: range.end,
+      by: GetTextBy.range,
     };
   }
 

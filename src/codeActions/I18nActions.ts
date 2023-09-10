@@ -5,6 +5,7 @@ import {
 } from "./constants";
 import { checkValueAndExistingKeys } from "../utils";
 import { getTextInfoByCursor, getTextInfoByRange } from "../utils/getTextInfo";
+import { GetTextBy } from "../constants";
 
 export class I18nActions implements vscode.CodeActionProvider {
   private filePath: vscode.Uri;
@@ -40,6 +41,8 @@ export class I18nActions implements vscode.CodeActionProvider {
       getTextInfoByRange(document, range) ||
       getTextInfoByCursor(document, cursorPosition);
 
+    const isTextByRange = selectedTextData?.by === GetTextBy.range;
+
     if (!selectedTextData) {
       return;
     }
@@ -63,22 +66,24 @@ export class I18nActions implements vscode.CodeActionProvider {
         document,
         key,
         selectedTextData.start,
-        selectedTextData.end
+        isTextByRange
+          ? selectedTextData.end
+          : selectedTextData.end.translate(0, 1)
       )
     );
 
     const createAction = this.createCommand();
     const updateAction = this.updateCommand();
 
-    return Promise.all([...actions, createAction, updateAction]);
+    return [...actions, createAction, updateAction];
   }
 
-  private async createFix(
+  private createFix(
     document: vscode.TextDocument,
     key: string,
     startPos: vscode.Position,
     endPos: vscode.Position
-  ): Promise<vscode.CodeAction> {
+  ): vscode.CodeAction {
     const fix = new vscode.CodeAction(
       `Intl key: ${key}`,
       vscode.CodeActionKind.QuickFix
@@ -90,11 +95,9 @@ export class I18nActions implements vscode.CodeActionProvider {
 
     fix.edit.replace(
       document.uri,
-      new vscode.Range(startPos, endPos.translate(0, 1)),
+      new vscode.Range(startPos, endPos),
       replacementIntlExpression
     );
-
-    await document.save();
 
     return fix;
   }
