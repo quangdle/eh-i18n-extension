@@ -1,34 +1,45 @@
 import * as vscode from "vscode";
 import { findKey, overwriteNewValue } from "../utils";
+import {
+  localeFileNotFoundError,
+  noEditorError,
+  noTextSelectedError,
+} from "../utils/errors";
+import { getTextInfoByCursor } from "../utils/getTextInfo";
 
-const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
+const editLocaleKeyAction = async (filePath: vscode.Uri) => {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
-    vscode.window.showErrorMessage("No active text editor!");
+    noEditorError();
     return;
   }
 
-  /* Check selected text */
+  const cursorPosition = editor.selection.active;
 
-  const selection = editor.selection;
-  const selectedText = editor.document.getText(selection);
+  const selectedTextData = getTextInfoByCursor(editor.document, cursorPosition);
 
-  if (!selectedText || (selectedText || "").trim().length === 0) {
-    vscode.window.showInformationMessage("No text selected!");
+  if (!selectedTextData) {
+    noTextSelectedError();
+    return;
+  }
+
+  const { textInQuotes: intlKey } = selectedTextData;
+
+  if (!intlKey || (intlKey || "").trim().length === 0) {
+    noTextSelectedError();
     return;
   }
 
   let data = {};
+
   try {
     data = await vscode.workspace.fs.readFile(filePath);
   } catch {
-    vscode.window.showErrorMessage("Locale file not found!");
+    localeFileNotFoundError();
   }
   const localeJSON = JSON.parse(data.toString());
 
-  const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
-
-  const valueToFind = findKey(localeJSON.messages, trimedQuotedText);
+  const valueToFind = findKey(localeJSON.messages, intlKey);
 
   if (!valueToFind || typeof valueToFind !== "string") {
     vscode.window.showErrorMessage("Key is invalid or not exists");
@@ -38,18 +49,17 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
   const newValue = await vscode.window.showInputBox({
     ignoreFocusOut: true,
     value: valueToFind,
-    prompt: `New value for the key ${trimedQuotedText}`,
+    prompt: `New value for the key ${intlKey}`,
   });
 
   if (!newValue || (newValue || "").trim().length === 0) {
-    vscode.window.showInformationMessage("New value must not be empty!");
     return;
   }
 
   try {
     const newDataForLocaleFile = overwriteNewValue(
       localeJSON.messages,
-      trimedQuotedText,
+      intlKey,
       newValue
     );
     localeJSON.messages = newDataForLocaleFile;
@@ -63,4 +73,4 @@ const editLocaleKeyMassage = async (filePath: vscode.Uri) => {
   }
 };
 
-export default editLocaleKeyMassage;
+export default editLocaleKeyAction;
