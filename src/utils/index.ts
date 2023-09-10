@@ -1,15 +1,88 @@
 import * as vscode from "vscode";
 
 import { CREATE_LOCALE_KEY_COMMAND, SEPARATOR } from "../constants";
+import findTheMostSuitablePosition from "./findTheMostSuitablePosition";
+import {
+  showKeyExistsErrorMessage,
+  showPathIsAStringErrorMessage,
+} from "./errors";
 
 type NestedObject = Record<string, any>;
+type MessageObject = Record<string, string | NestedObject>;
 
-export function assignValueToObjectPath<T extends NestedObject>(
-  obj: T,
-  paths: string[],
-  value: string
-): boolean {
-  let currentObj: NestedObject = obj;
+const addKeyNextToTheMostSuitablePosition = <T extends NestedObject>({
+  jsonObj,
+  key,
+  value,
+  nextToKey,
+}: {
+  jsonObj: T;
+  key: string;
+  value: string;
+  nextToKey: string;
+}): MessageObject | null => {
+  const keys = Object.keys(jsonObj);
+  const index = keys.indexOf(nextToKey);
+
+  if (index !== -1) {
+    const updatedJson: MessageObject = {};
+    for (let i = 0; i <= index; i++) {
+      const currentKey = keys[i];
+      updatedJson[currentKey] = jsonObj[currentKey];
+    }
+    updatedJson[key] = value;
+    for (let i = index + 1; i < keys.length; i++) {
+      const currentKey = keys[i];
+      updatedJson[currentKey] = jsonObj[currentKey];
+    }
+    return updatedJson;
+  }
+
+  // If the nextToKey is not found, return the original JSON object
+  return jsonObj;
+};
+
+const handleAddStringKey = ({
+  newKey,
+  value,
+  messagesObject,
+}: {
+  newKey: string;
+  value: string;
+  messagesObject: MessageObject;
+}): MessageObject | null => {
+  const theMostSuitablePosition = findTheMostSuitablePosition({
+    inputKey: newKey,
+    keySet: Object.keys(messagesObject).filter(
+      (key) => typeof messagesObject[key] !== "object"
+    ),
+  });
+
+  if (!theMostSuitablePosition) {
+    return {
+      ...messagesObject,
+      [newKey]: value,
+    };
+  }
+
+  return addKeyNextToTheMostSuitablePosition({
+    jsonObj: messagesObject,
+    key: newKey,
+    value,
+    nextToKey: theMostSuitablePosition,
+  });
+};
+
+const handleAddNestedKey = ({
+  paths,
+  value,
+  messagesObject,
+}: {
+  paths: string[];
+  value: string;
+  messagesObject: MessageObject;
+}) => {
+  let currentObj: NestedObject = messagesObject;
 
   for (let i = 0; i < paths.length - 1; i++) {
     const key = paths[i];
@@ -18,26 +91,59 @@ export function assignValueToObjectPath<T extends NestedObject>(
     }
 
     if (currentObj.hasOwnProperty(key) && typeof currentObj[key] === "string") {
-      vscode.window.showErrorMessage(
-        `Path ${paths.slice(0, i + 1).join(".")} is a string: ${
-          currentObj[key]
-        }`
-      );
-      return false;
+      showPathIsAStringErrorMessage({
+        path: paths.slice(0, i + 1).join("."),
+        value,
+      });
+      return null;
     }
     currentObj = currentObj[key] as NestedObject;
   }
+
   const lastKey = paths[paths.length - 1];
 
   if (currentObj.hasOwnProperty(lastKey)) {
-    vscode.window.showErrorMessage(
-      "Key already exists! Please use another key."
-    );
-    return false;
+    showKeyExistsErrorMessage();
+    return null;
   } else {
     currentObj[lastKey] = value;
-    return true;
+    return messagesObject;
   }
+};
+
+export function assignValueToObjectPath<T extends NestedObject>({
+  obj,
+  key,
+  value,
+}: {
+  obj: T;
+  key: string;
+  value: string;
+}): MessageObject | null {
+  const paths = key.split(SEPARATOR);
+
+  const updatedMessages = { ...obj };
+
+  if (paths.length === 1) {
+    const newKey = paths[0];
+
+    if (updatedMessages.hasOwnProperty(newKey)) {
+      showKeyExistsErrorMessage();
+      return null;
+    }
+
+    return handleAddStringKey({
+      newKey,
+      value,
+      messagesObject: updatedMessages,
+    });
+  }
+
+  return handleAddNestedKey({
+    paths,
+    value,
+    messagesObject: updatedMessages,
+  });
 }
 
 export function checkValueAndExistingKeys(
