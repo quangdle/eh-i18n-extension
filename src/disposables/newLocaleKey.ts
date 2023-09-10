@@ -6,6 +6,7 @@ import {
   sortJson,
 } from "../utils";
 import { SEPARATOR } from "../constants";
+import { noEditorError, noTextSelectedError } from "../utils/errors";
 
 const newLocaleKey = async (
   filePath: vscode.Uri,
@@ -15,7 +16,7 @@ const newLocaleKey = async (
   {
     const editor = vscode.window.activeTextEditor;
     if (!editor) {
-      vscode.window.showErrorMessage("No active text editor!");
+      noEditorError();
       return;
     }
 
@@ -26,7 +27,7 @@ const newLocaleKey = async (
     const selectedText = editor.document.getText(selection);
 
     if (!selectedText || (selectedText || "").trim().length === 0) {
-      vscode.window.showInformationMessage("No text selected!");
+      noTextSelectedError();
       return;
     }
 

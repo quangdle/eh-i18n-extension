@@ -202,7 +202,7 @@ export const getExtensionConfig = (configKey: string): unknown => {
 };
 
 export const replaceSelectedText = async (
-  selection: vscode.Selection,
+  selection: vscode.Range,
   key: string,
   useBrackets: boolean,
   filePath: string
