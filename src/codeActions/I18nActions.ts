@@ -3,7 +3,7 @@ import {
   CREATE_LOCALE_KEY_CODE_ACTION_COMMAND,
   VIEW_EDIT_LOCALE_KEY_COMMAND,
 } from "./constants";
-import { checkValueAndExistingKeys } from "../utils";
+import { checkIfShouldUseBrackets, checkValueAndExistingKeys } from "../utils";
 import { getTextInfoByCursor, getTextInfoByRange } from "../utils/getTextInfo";
 import { GetTextBy } from "../constants";
 import * as path from "path";
@@ -67,6 +67,12 @@ export class I18nActions implements vscode.CodeActionProvider {
 
     // return promise of code actions
 
+    const shouldUseBrackets = checkIfShouldUseBrackets({
+      isSingleQuoted: selectedTextData.isSingleQuoted,
+      fileExtension,
+      useBracketsConfig: this.useBrackets,
+    });
+
     const actions = existingKeys.map((key) =>
       this.createFix(
         document,
@@ -75,8 +81,7 @@ export class I18nActions implements vscode.CodeActionProvider {
         isTextByRange
           ? selectedTextData.end
           : selectedTextData.end.translate(0, 1),
-        (fileExtension === ".tsx" || fileExtension === ".jsx") &&
-          this.useBrackets
+        shouldUseBrackets
       )
     );
 
