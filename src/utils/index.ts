@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-
+import * as path from "path";
 import { CREATE_LOCALE_KEY_COMMAND, SEPARATOR } from "../constants";
 import findTheMostSuitablePosition from "./findTheMostSuitablePosition";
 import {
@@ -208,15 +208,17 @@ export const replaceSelectedText = async (
   filePath: string
 ) => {
   const textDocument = await vscode.workspace.openTextDocument(filePath);
-
+  const uri = textDocument.uri;
+  const fileExtension = path.extname(uri.fsPath);
   const edit = new vscode.WorkspaceEdit();
 
   const paths = key.split(SEPARATOR);
   const formattedPath = paths.join(".");
 
-  const replacementIntlExpression = useBrackets
-    ? `\{Intl.formatMessage({id: '${formattedPath}'})\}`
-    : `Intl.formatMessage({id: '${formattedPath}'})`;
+  const replacementIntlExpression =
+    (fileExtension === ".tsx" || fileExtension === ".jsx") && useBrackets
+      ? `\{Intl.formatMessage({id: '${formattedPath}'})\}`
+      : `Intl.formatMessage({id: '${formattedPath}'})`;
 
   edit.replace(textDocument.uri, selection, replacementIntlExpression);
   await vscode.workspace.applyEdit(edit);
