@@ -50,9 +50,12 @@ export class I18nActions implements vscode.CodeActionProvider {
     let data = {};
     try {
       data = await vscode.workspace.fs.readFile(this.filePath);
-    } catch {
-      vscode.window.showErrorMessage("Locale file not found!");
+    } catch {}
+
+    if (!data) {
+      return;
     }
+
     const localeJSON = JSON.parse(data.toString());
     const { existingKeys } = checkValueAndExistingKeys(
       localeJSON.messages,
