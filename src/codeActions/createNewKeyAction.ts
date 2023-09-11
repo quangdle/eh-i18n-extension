@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import {
   assignValueToObjectPath,
+  checkIfShouldUseBrackets,
   replaceSelectedText,
   sortJson,
 } from "../utils";
@@ -12,6 +13,7 @@ import {
   noTextSelectedError,
 } from "../utils/errors";
 import { GetTextBy } from "../constants";
+import * as path from "path";
 
 const createNewKeyAction = async (
   filePath: vscode.Uri,
@@ -24,7 +26,8 @@ const createNewKeyAction = async (
       noEditorError();
       return;
     }
-
+    const uri = editor.document.uri;
+    const fileExtension = path.extname(uri.fsPath);
     const fileName = editor.document.fileName;
 
     const cursorPosition = editor.selection.active;
@@ -45,6 +48,7 @@ const createNewKeyAction = async (
       textInQuotes,
       start: textStartPosition,
       end: textEndPosition,
+      isSingleQuoted,
     } = selectedTextData;
 
     if (!textInQuotes || (textInQuotes || "").trim().length === 0) {
@@ -96,13 +100,19 @@ const createNewKeyAction = async (
       failToWriteFileError();
     }
 
+    const shouldUseBrackets = checkIfShouldUseBrackets({
+      isSingleQuoted,
+      fileExtension,
+      useBracketsConfig: useBrackets,
+    });
+
     await replaceSelectedText(
       new vscode.Range(
         textStartPosition,
         isTextByRange ? textEndPosition : textEndPosition.translate(0, 1)
       ),
       key,
-      useBrackets,
+      shouldUseBrackets,
       fileName
     );
   }

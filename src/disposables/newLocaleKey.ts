@@ -1,11 +1,12 @@
 import * as vscode from "vscode";
 import {
   assignValueToObjectPath,
+  checkIfShouldUseBrackets,
   checkValueAndExistingKeys,
   replaceSelectedText,
   sortJson,
 } from "../utils";
-import { SEPARATOR } from "../constants";
+import * as path from "path";
 import { noEditorError, noTextSelectedError } from "../utils/errors";
 
 const newLocaleKey = async (
@@ -38,6 +39,16 @@ const newLocaleKey = async (
       vscode.window.showErrorMessage("Locale file not found!");
     }
     const localeJSON = JSON.parse(data.toString());
+    const uri = editor.document.uri;
+    const fileExtension = path.extname(uri.fsPath);
+    const isSingleQuoted =
+      selectedText.startsWith("'") && selectedText.endsWith("'");
+
+    const shouldUseBrackets = checkIfShouldUseBrackets({
+      isSingleQuoted,
+      fileExtension,
+      useBracketsConfig: useBrackets,
+    });
 
     const trimedQuotedText = selectedText.replace(/^["'](.*)["']$/, "$1");
 
@@ -79,7 +90,7 @@ const newLocaleKey = async (
         await replaceSelectedText(
           selection,
           userSelect.label,
-          useBrackets,
+          shouldUseBrackets,
           fileName
         );
         return;
@@ -119,7 +130,7 @@ const newLocaleKey = async (
       vscode.window.showErrorMessage("Failed to write locale file!");
     }
 
-    await replaceSelectedText(selection, key, useBrackets, fileName);
+    await replaceSelectedText(selection, key, shouldUseBrackets, fileName);
   }
 };
 
