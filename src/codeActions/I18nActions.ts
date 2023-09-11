@@ -6,6 +6,7 @@ import {
 import { checkValueAndExistingKeys } from "../utils";
 import { getTextInfoByCursor, getTextInfoByRange } from "../utils/getTextInfo";
 import { GetTextBy } from "../constants";
+import * as path from "path";
 
 export class I18nActions implements vscode.CodeActionProvider {
   private filePath: vscode.Uri;
@@ -31,6 +32,8 @@ export class I18nActions implements vscode.CodeActionProvider {
     range: vscode.Range
   ): Promise<vscode.CodeAction[] | undefined> {
     const activeTextEditor = vscode.window.activeTextEditor;
+    const uri = document.uri;
+    const fileExtension = path.extname(uri.fsPath);
 
     if (!activeTextEditor) {
       return;
@@ -71,7 +74,9 @@ export class I18nActions implements vscode.CodeActionProvider {
         selectedTextData.start,
         isTextByRange
           ? selectedTextData.end
-          : selectedTextData.end.translate(0, 1)
+          : selectedTextData.end.translate(0, 1),
+        (fileExtension === ".tsx" || fileExtension === ".jsx") &&
+          this.useBrackets
       )
     );
 
@@ -85,14 +90,15 @@ export class I18nActions implements vscode.CodeActionProvider {
     document: vscode.TextDocument,
     key: string,
     startPos: vscode.Position,
-    endPos: vscode.Position
+    endPos: vscode.Position,
+    useBrackets: boolean
   ): vscode.CodeAction {
     const fix = new vscode.CodeAction(
       `Intl key: ${key}`,
       vscode.CodeActionKind.QuickFix
     );
     fix.edit = new vscode.WorkspaceEdit();
-    const replacementIntlExpression = this.useBrackets
+    const replacementIntlExpression = useBrackets
       ? `\{Intl.formatMessage({id: '${key}'})\}`
       : `Intl.formatMessage({id: '${key}'})`;
 
