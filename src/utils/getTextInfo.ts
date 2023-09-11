@@ -9,19 +9,17 @@ function getTextInfoByCursor(
   const lineText = line.text;
   let start, end;
 
-  // Find the closest quote before the cursor
-  for (let i = position.character - 1; i >= 0; i--) {
+  // Find the farthest quote before the cursor
+  for (let i = position.character; i >= 0; i--) {
     if (lineText.charAt(i) === "'" || lineText.charAt(i) === '"') {
       start = new vscode.Position(position.line, i);
-      break;
     }
   }
 
-  // Find the closest quote after the cursor
+  // Find the farthest quote after the cursor
   for (let i = position.character; i < lineText.length; i++) {
     if (lineText.charAt(i) === "'" || lineText.charAt(i) === '"') {
       end = new vscode.Position(position.line, i);
-      break;
     }
   }
 
