@@ -4,6 +4,7 @@ import { getExtensionConfig } from "./utils";
 import {
   CREATE_LOCALE_KEY_COMMAND,
   EDIT_LOCALE_MESSAGE_COMMAND,
+  SEARCH_LOCALE_MESSAGE_COMMAND,
 } from "./constants";
 import newLocaleKey from "./disposables/newLocaleKey";
 import editLocaleKeyMassage from "./disposables/editLocaleKeyMessage";
@@ -14,6 +15,7 @@ import {
 } from "./codeActions/constants";
 import createNewKeyAction from "./codeActions/createNewKeyAction";
 import editLocaleKeyAction from "./codeActions/editLocaleKeyAction";
+import searchLocaleMessage from "./disposables/searchLocaleMessage";
 
 export function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
@@ -50,6 +52,10 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand(
       VIEW_EDIT_LOCALE_KEY_COMMAND,
       async () => await editLocaleKeyAction(filePath)
+    ),
+    vscode.commands.registerCommand(
+      SEARCH_LOCALE_MESSAGE_COMMAND,
+      async () => await searchLocaleMessage(filePath)
     )
   );
 
