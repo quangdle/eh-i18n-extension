@@ -1,5 +1,6 @@
 import jsonSourceMap from "json-source-map";
 import { get } from "lodash";
+import { TextDecoder } from "util";
 import { Location, Position, Range, Uri, workspace } from "vscode";
 
 const POINTER_KEY_PREFIX = "/messages";
@@ -45,9 +46,9 @@ class TranslationCache {
 
   private async parseJsonLocale() {
     try {
-      const localeJsonString = (
-        await workspace.openTextDocument(this.filePath)
-      ).getText();
+      const localeJsonString = new TextDecoder().decode(
+        await workspace.fs.readFile(this.filePath)
+      );
 
       const localeJsonSourceMap = jsonSourceMap.parse(localeJsonString) || {};
       const localeMessages = localeJsonSourceMap.data?.messages || {};

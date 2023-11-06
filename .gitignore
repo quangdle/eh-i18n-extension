@@ -3,4 +3,4 @@ dist
 node_modules
 .vscode-test/
 *.vsix
-settings.json
+.vscode/settings.json
