@@ -311,3 +311,29 @@ export const checkIfShouldUseBrackets = ({
   !isSingleQuoted &&
   (fileExtension === ".tsx" || fileExtension === ".jsx") &&
   useBracketsConfig;
+
+export const getFilePathWithFallback = async (
+  filePath: vscode.Uri,
+  fallbackList: vscode.Uri[]
+) => {
+  if (await checkFilePathExist(filePath)) {
+    return filePath;
+  }
+
+  for (let fallbackPath of fallbackList) {
+    if (await checkFilePathExist(fallbackPath)) {
+      return fallbackPath;
+    }
+  }
+
+  return null;
+};
+
+const checkFilePathExist = async (filePath: vscode.Uri) => {
+  try {
+    await vscode.workspace.fs.stat(filePath);
+    return true;
+  } catch (err) {
+    return false;
+  }
+};

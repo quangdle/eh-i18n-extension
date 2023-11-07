@@ -15,7 +15,20 @@ import {
 import createNewKeyAction from "./codeActions/createNewKeyAction";
 import editLocaleKeyAction from "./codeActions/editLocaleKeyAction";
 
-export function activate(context: vscode.ExtensionContext) {
+import { getFilePathWithFallback } from "./utils";
+import TranslationCache from "./disposables/translation/TranslationCache";
+import TranslationHoverProvider from "./disposables/translation/TranslationHoverProvider";
+import TranslationDefinitionProvider from "./disposables/translation/TranslationDefinitionProvider";
+import TranslationCompletionProvider from "./disposables/translation/TranslationCompletionProvider";
+
+const DOCUMENT_FILTERS = [
+  "javascript",
+  "typescript",
+  "typescriptreact",
+  "javascriptreact",
+];
+
+export async function activate(context: vscode.ExtensionContext) {
   const localePath = getExtensionConfig("localeFilePath") as string;
   const useBrackets = getExtensionConfig("withBrackets") as boolean;
   const useSort = getExtensionConfig("sort") as boolean;
@@ -32,7 +45,27 @@ export function activate(context: vscode.ExtensionContext) {
     return;
   }
 
-  const filePath = vscode.Uri.joinPath(workspaceFolders[0].uri, localePath);
+  const intendedFilePath = vscode.Uri.joinPath(
+    workspaceFolders[0].uri,
+    localePath
+  );
+
+  // fallback to default mobile repo en-AU.json path
+  const fallbackList = [
+    vscode.Uri.joinPath(
+      workspaceFolders[0].uri,
+      "app/state/intl-configs/en-AU.json"
+    ),
+  ];
+
+  const filePath = await getFilePathWithFallback(
+    intendedFilePath,
+    fallbackList
+  );
+
+  if (!filePath) {
+    return;
+  }
 
   const disposables = vscode.Disposable.from(
     vscode.commands.registerCommand(CREATE_LOCALE_KEY_COMMAND, async () => {
@@ -57,11 +90,39 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.languages.registerCodeActionsProvider(
-      ["javascript", "typescript", "typescriptreact", "javascriptreact"],
+      DOCUMENT_FILTERS,
       new I18nActions({ filePath, useBrackets }),
       {
         providedCodeActionKinds: I18nActions.providedCodeActionKinds,
       }
+    )
+  );
+
+  // Translation providers
+  const translationCache = new TranslationCache(filePath);
+  await translationCache.init();
+
+  // hover
+  context.subscriptions.push(
+    vscode.languages.registerHoverProvider(
+      DOCUMENT_FILTERS,
+      new TranslationHoverProvider(translationCache)
+    )
+  );
+
+  // go to definition
+  context.subscriptions.push(
+    vscode.languages.registerDefinitionProvider(
+      DOCUMENT_FILTERS,
+      new TranslationDefinitionProvider(translationCache)
+    )
+  );
+
+  // suggestion
+  context.subscriptions.push(
+    vscode.languages.registerCompletionItemProvider(
+      DOCUMENT_FILTERS,
+      new TranslationCompletionProvider(translationCache)
     )
   );
 }
