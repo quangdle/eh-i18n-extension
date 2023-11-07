@@ -1,15 +1,19 @@
 # EH i18n - VS Code Create Locale Key
 
-A VS Code extension for creating a new key in a JSON locale file and replacing selected text with a reference to that key.
-
+A VS Code extension for creating a new key in a JSON locale file and replacing selected text with a reference to that key. Also supports showing translation on hover, jumping to translation definitions, and locale key autocomplete suggestions.
 ## Features
 
 - Creates a new key in a JSON locale file and replaces selected text with a reference to that key
+- Supports showing translation on hover, jumping to translation definitions, and locale key autocomplete suggestions.
 - Supports custom locale file path
 - Suggest existing keys whose value is the selected text
 - Sort the json file
 
 ## Usage
+
+### Translation Hover, Jump to Definition and Autocomplete Suggestions
+![intellisense](https://github.com/quangdle/eh-i18n-extension/assets/141205236/bc4f8d8b-8a91-4038-a571-bad319259e76)
+
 ### Creation
 
 
@@ -63,19 +67,23 @@ The extension can be configured with the following settings:
 
 ## Release Notes
 
-### 0.0.6
+### 0.1.7
+- Support showing translation on hover, jumping to translation definitions, and locale key autocomplete suggestions.
+- Use `esbuild` for bundling.
+- Update default locale fallback path to work with `eh-mobile-pro` repo by default.
+### 0.1.1
+Support code action providers and add key to more correct position
 
-Initial release of Create Locale Key
+### 0.1.0
+Add edit message
 
 ### 0.0.9
 
 Add sort and suggestion of existing keys
 
-### 0.1.0
-Add edit message
+### 0.0.6
 
-### 0.1.1
-Support code action providers and add key to more correct position
+Initial release of Create Locale Key
 
 ## Contributing
 
